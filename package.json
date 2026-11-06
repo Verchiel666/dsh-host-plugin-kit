@@ -1,0 +1,31 @@
+{
+  "name": "dsh-host-plugin-kit",
+  "version": "0.1.0",
+  "description": "DSH host 侧插件脚手架：一条命令生成带三层验证（离线单测 / 真 cordis 冒烟 / 发布脚本）的插件骨架，含审批钩子与 dispose 清理模板",
+  "type": "module",
+  "main": "new.mjs",
+  "bin": {
+    "dsh-plugin-kit": "new.mjs"
+  },
+  "files": [
+    "new.mjs",
+    "templates/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "scaffold",
+    "cordis"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Verchiel666/dsh-plugin-kit.git"
+  },
+  "homepage": "https://github.com/Verchiel666/dsh-plugin-kit#readme",
+  "author": "Verchiel666"
+}
