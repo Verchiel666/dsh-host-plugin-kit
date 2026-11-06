@@ -1,6 +1,6 @@
 {
   "name": "dsh-host-plugin-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "DSH host 侧插件脚手架：一条命令生成带三层验证（离线单测 / 真 cordis 冒烟 / 发布脚本）的插件骨架，含审批钩子与 dispose 清理模板",
   "type": "module",
   "main": "new.mjs",
@@ -9,7 +9,7 @@
   },
   "files": [
     "new.mjs",
-    "templates/",
+    "dev/bin-selftest.mjs",
     "README.md"
   ],
   "engines": {
