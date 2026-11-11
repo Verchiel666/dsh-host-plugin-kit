@@ -24,8 +24,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Verchiel666/dsh-plugin-kit.git"
+    "url": "git+https://github.com/Verchiel666/dsh-host-plugin-kit.git"
   },
-  "homepage": "https://github.com/Verchiel666/dsh-plugin-kit#readme",
+  "homepage": "https://github.com/Verchiel666/dsh-host-plugin-kit#readme",
   "author": "Verchiel666"
 }
