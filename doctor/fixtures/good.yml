@@ -1,0 +1,9 @@
+# 正例：name 字面路径 + !!js 只在 config 内 + id 唯一
+- insert:
+    - id: demo
+      name: /opt/dsh/plugins/dsh-usage/index.mjs
+      config:
+        sessionRoot: ''
+        bin: !!js "process.env.DSH_NODE_BIN"
+        args:
+          - !!js "process.env.HOME + '/work/x'"

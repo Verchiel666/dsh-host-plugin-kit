@@ -1,21 +1,44 @@
 {
   "name": "dsh-host-plugin-kit",
-  "version": "0.1.1",
-  "description": "DSH host 侧插件脚手架：一条命令生成带三层验证（离线单测 / 真 cordis 冒烟 / 发布脚本）的插件骨架，含审批钩子与 dispose 清理模板",
+  "version": "0.2.0",
+  "description": "DSH host 侧插件脚手架（CLI + 宿主插件双形态）：一条命令生成带三层验证（离线单测 / 真 cordis 冒烟 / 部署检查）的插件骨架，并在 DSH 里提供 plugin_kit_new 工具，agent 不开 shell 也能搭骨架",
   "type": "module",
-  "main": "new.mjs",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs",
+    "./scaffold": "./lib/scaffold.mjs",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
   "bin": {
     "dsh-plugin-kit": "new.mjs"
   },
   "files": [
+    "index.mjs",
     "new.mjs",
-    "dev/bin-selftest.mjs",
+    "lib/",
+    "dev/",
+    "cordis.patch.yml",
+    "icon.svg",
     "README.md"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=20",
+    "dsh": ">=0.2.0"
   },
   "license": "MIT",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "capabilities": [
+      "tools:register",
+      "fs:write",
+      "fs:read"
+    ],
+    "labels": []
+  },
   "keywords": [
     "dsh",
     "dsh-plugin",

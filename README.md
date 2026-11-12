@@ -1,57 +1,66 @@
 # dsh-host-plugin-kit
 
-一条命令生成 **DSH host 侧插件骨架**，自带三层验证（离线单测 / 真 cordis 冒烟 / 发布路径说明）与审批钩子模板。
+DSH（DeepSeek Harness）**host 侧插件脚手架**，0.2.0 起是 **CLI + 宿主插件双形态**：
+一条命令生成带三层验证的插件骨架；装进 DSH 后还能让 agent 直接用 `plugin_kit_new` 工具搭骨架，不用开 shell。
 
-面向 **Android 上的 DSH**（没有 Web Client 层，插件只能贡献 host 侧：工具、服务、事件、SKILL、MCP 桥）。
+## 为什么要插件形态
 
-> 名字里的 host 是刻意的：npm 上的 `dsh-host-plugin-kit` 是另一套（客户端 bundle 生成 + verify），
-> 与这套「host 侧工具插件骨架 + 三层测试」不是一回事。
+市场（awesome-dsh-plugin.com）的收录门槛是 `package.json` 里的 `dsh.bundle.patch`（2026-11-11 查 contributing 核实）。
+0.1.x 只有 `bin`，是脚手架 CLI、不是插件形态，市场收不了。0.2.0 把同一份生成逻辑包成 host 侧工具：
 
-## 用法
+- 没有 `dsh.client` —— 不依赖任何 UI slot（Android 引擎没有 Web Client 层，带 client 的装了不渲染）；
+- `inject` 只有 `['tools']` —— 不碰本机没有的 `webServer`（否则 cordis 会静默挂起插件）；
+- 数据源是本地 fs —— 生成的是源码文件，不靠 git / 端口 / 外部服务。
 
-```sh
-node new.mjs ~/work/my-plugin --name dsh-hello --desc "示例插件" [--prefix hello]
+## 工具（插件形态）
 
-cd ~/work/my-plugin
-node dev/test.mjs         # 6 项离线单测
-node host-test/rt.mjs     # 5 项真 cordis 冒烟（用引擎自带的那份 cordis）
+| 工具 | 风险 | 作用 |
+|---|---|---|
+| `plugin_kit_new` | 写盘（走审批） | 在指定目录生成插件骨架（10 个文件），返回三层验证的跑法 |
+
+写类工具在 `tools/pre-execute` 里把 `allow` 升级成 `ask`，**不改写上游 `deny`**。
+
+```yaml
+# 装好后写进 profile 的 cordis.patch.yml（name 用包名或绝对路径，不要写 !!js）
+- insert:
+    - id: plugin_kit
+      name: dsh-host-plugin-kit
+      config: {}
 ```
 
-生成物：
-
-| 文件 | 作用 |
-|---|---|
-| `index.mjs` | 注册工具（`ctx.effect` 内）、挂 `tools/pre-execute` 审批钩子 |
-| `lib/core.mjs` | 业务逻辑，纯函数好测 |
-| `cordis.patch.yml` | profile 的 insert 片段 |
-| `package.json` | `dsh.bundle.patch` + 最小 `capabilities` |
-| `dev/test.mjs` | 假 ctx 单测：注册、execute、审批 allow→ask、deny 不改写 |
-| `host-test/rt.mjs` | 真 `@deepseek-ai/cordis`：inject、注册、execute、钩子、`dispose` 清理 |
-| `locale/`、`icon.svg`、`README.md` | 插件三件套 |
-
-## 生成的骨架遵守的约定
-
-1. `export const name / inject / apply`；
-2. 工具在 `ctx.effect` 里注册并返回 dispose（卸载要干净，有测试）；
-3. 写类工具把 `allow` 升级为 `ask`，**上游 `deny` 不许改写**（有测试）；
-4. 纯逻辑放 `lib/`，`index.mjs` 只做协议适配。
-
-## 在这台手机上发布
+## CLI 形态
 
 ```sh
-# npm：新包首发先进 staged 状态，40–120 s 后才可见；发完务必下载 tarball 实际加载验证
-node $HOME/tools/npm/bin/npm-cli.js publish
-
-# GitHub：本机没有 git，走 REST API 一次成 commit
-node $HOME/work/gitpub/publish-github.mjs --dir . --owner <you> --repo dsh-hello --token-file $HOME/.gh_token
+node new.mjs <目标目录> --name dsh-hello [--desc "一句话"] [--prefix hello]
+# 或装到干净目录后：node node_modules/dsh-host-plugin-kit/new.mjs <目标目录> --name dsh-hello
 ```
 
-装插件时**带版本号**（`dsh-hello@0.1.0`），否则会遇到「裸名字 spec 永远没有更新徽标」的坑。
+生成的 10 个文件：`package.json`（含 `dsh.bundle`）/ `index.mjs`（工具注册 + 审批钩子）/ `lib/core.mjs` /
+`cordis.patch.yml` / `icon.svg` / `locale/zh-CN.json` / `dev/test.mjs` / `host-test/rt.mjs` / `README.md` / `.gitignore`。
 
-## 自测
+生成内容只由 `{name, desc, prefix}` 决定 → **同参数必然同字节**，回归测试直接比文件。
 
-```sh
-node dev/bin-selftest.mjs   # 生成一个临时插件并跑它的两套测试
-```
+## 三层验证（本包自己也按这个跑）
+
+| 层 | 文件 | 验什么 |
+|---|---|---|
+| L1 离线单测 | `node dev/test.mjs` | 纯逻辑、落盘结果、工具面、审批钩子、dispose（14 项） |
+| L2 真 cordis | `node $HOME/work/host-test/rt-plugin-kit.mjs` | 用引擎那份 cordis 加载：注册 / 执行 / 钩子 / dispose（5 项） |
+| L3 部署检查 | `node dev/verify-patch.mjs [patch]` | 引擎同款解析器（js-yaml + `!!js` 标量）读 patch，断言 `name` 是普通字符串、引用文件都在（7 项） |
+| 脚手架自测 | `node dev/bin-selftest.mjs` | 生成一个临时插件，再跑它自己的 L1 / L2（4 项） |
+
+## 已知检查器偏差（别为绿灯改声明）
+
+`dsh-standards` 的 `C-11.5` 只认 `ctx.fs` 触发的 capability 声明，本包写盘走 `node:fs`（在 `lib/scaffold.mjs`），
+所以 `fs:write` / `fs:read` **必然报 WARN**。实测：`--scope entry --entry-claim runtime` 下 10 项 PASS、
+2 项 WARN（C-11.5 上述盲点 + C-8.2 的 cordis 版本错位，本机 cordis 4.0.5 没有 `_revision` 字段）、0 项 FAIL。
+真实声明保留，不为了让检查器变绿而删。
+
+## 契约
+
+- `inject: ['tools']`，工具在 `ctx.effect` 里注册并返回 dispose（写成 `() => off()` 会当场卸载）；
+- 写类工具只把 `allow` 升级成 `ask`，不改写 `deny`；
+- `dsh.capabilities` 按实际用到的最小集合声明；
+- `name` 必须是普通字符串，`!!js` 只能用在 entry 的 `config` 里求值。
 
 MIT

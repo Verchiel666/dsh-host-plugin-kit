@@ -1,0 +1,17 @@
+# 反例：7 条错误每个都该被 doctor 拦下
+- insert:
+    - id: bad-js-name
+      name: !!js "process.env.HOME + '/work/x.mjs'"
+    - id: bad-relative
+      name: ./rel.mjs
+    - id: bad-absent
+      name: /data/nonexistent/plugin.mjs
+    - id: bad-pkg
+      name: definitely-not-installed-pkg
+    - id: js-outside-config
+      name: /data/nonexistent/x.mjs
+      options: !!js "1 + 1"
+    - id: dup-id
+      name: ./a.mjs
+    - id: dup-id
+      name: ./b.mjs

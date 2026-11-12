@@ -1,0 +1,6 @@
+# 把本插件插进 profile 的层栈。App 里安装后重启引擎生效。
+# name 用包名（装好后由 Loader 解析），不要写 !!js —— 表达式只在 entry 的 config 里求值。
+- insert:
+    - id: plugin_kit
+      name: dsh-host-plugin-kit
+      config: {}
