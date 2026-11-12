@@ -1,6 +1,6 @@
 {
   "name": "dsh-host-plugin-kit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "DSH host 侧插件脚手架（CLI + 宿主插件双形态）：一条命令生成带三层验证（离线单测 / 真 cordis 冒烟 / 部署检查）的插件骨架，并在 DSH 里提供 plugin_kit_new 工具，agent 不开 shell 也能搭骨架",
   "type": "module",
   "main": "index.mjs",

@@ -45,7 +45,7 @@ node new.mjs <目标目录> --name dsh-hello [--desc "一句话"] [--prefix hell
 | 层 | 文件 | 验什么 |
 |---|---|---|
 | L1 离线单测 | `node dev/test.mjs` | 纯逻辑、落盘结果、工具面、审批钩子、dispose（14 项） |
-| L2 真 cordis | `node $HOME/work/host-test/rt-plugin-kit.mjs` | 用引擎那份 cordis 加载：注册 / 执行 / 钩子 / dispose（5 项） |
+| L2 真 cordis | `node dev/rt.mjs` | 用引擎那份 cordis 加载：注册 / 执行 / 钩子 / dispose（5 项）；cordis 路径走 `DSH_HOST_TEST_DIR`，默认 `<HOME>/work/host-test` |
 | L3 部署检查 | `node dev/verify-patch.mjs [patch]` | 引擎同款解析器（js-yaml + `!!js` 标量）读 patch，断言 `name` 是普通字符串、引用文件都在（7 项） |
 | 脚手架自测 | `node dev/bin-selftest.mjs` | 生成一个临时插件，再跑它自己的 L1 / L2（4 项） |
 
