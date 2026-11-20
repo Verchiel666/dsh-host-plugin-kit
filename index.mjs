@@ -92,7 +92,10 @@ export function apply(ctx, config = {}) {
     if (exec?.name !== tool.name || decision?.kind !== 'allow') return decision
     let argsText = ''
     try { argsText = JSON.stringify(exec.arguments ?? {}) } catch {}
-    if (argsText.length > 200) argsText = argsText.slice(0, 200) + '…'
-    return { kind: 'ask', reason: `plugin_kit 要在手机上生成插件骨架：${argsText}` }
+    argsText = argsText.length > 200 ? argsText.slice(0, 200) + `…[已截断，还有 ${argsText.length - 200} 字符未显示]` : argsText
+    const argv = Array.isArray(exec.arguments?.args) ? exec.arguments.args.map(String) : [];
+    const risky = argv.filter(a => /[;&|`$()<>]/.test(a));
+    const flag = risky.length ? `  ⚠️ 参数含 shell 元字符：${risky.slice(0, 3).map(a => JSON.stringify(a.slice(0, 40))).join(' ')}` : '';
+    return { kind: 'ask', reason: `plugin_kit 要在手机上生成插件骨架：${argsText}${flag}` }
   })
 }
